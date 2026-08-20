@@ -1167,6 +1167,7 @@ function TaskCard({ task, isAdmin, labels, statuses, onEdit, onToggle, onDelete,
   const dl = task.deadline && !isDone ? deadlineStyle(task.deadline) : null;
   const responsibleLabel = getResponsibleLabel(task.responsible, allClients, currentClient);
   const isVesto = isVestoResponsible(task.responsible);
+  const hasExtra = task.instructions || task.referenceLink || (task.attachments || []).length > 0;
 
   return (
     <div
@@ -1175,42 +1176,47 @@ function TaskCard({ task, isAdmin, labels, statuses, onEdit, onToggle, onDelete,
       onMouseLeave={() => setHover(false)}
       style={{
         background: hover ? T.bgHover : T.bgCard,
-        borderRadius: 12,
-        padding: "14px 16px",
-        border: `1px solid ${overdue ? T.danger + "55" : hover ? T.borderStrong : T.border}`,
-        borderLeft: `3px solid ${lb.color}`,
-        transition: "all .2s ease",
-        transform: hover ? "translateY(-1px)" : "none",
-        boxShadow: hover ? "0 8px 24px rgba(0,0,0,.2)" : "none",
+        borderRadius: 10,
+        padding: "12px 16px",
+        border: `1px solid ${overdue ? T.danger + "40" : hover ? T.borderStrong : T.border}`,
+        transition: "border-color .2s, background .2s",
         cursor: "pointer",
       }}
     >
-      <div style={{ display: "flex", alignItems: "flex-start", gap: 10 }}>
-        <button onClick={e => { e.stopPropagation(); onToggle(task); }} style={{ flexShrink: 0, width: 22, height: 22, borderRadius: 6, border: `2px solid ${isDone ? T.success : T.goldMuted}`, background: isDone ? T.success : "transparent", display: "flex", alignItems: "center", justifyContent: "center", cursor: "pointer", marginTop: 1, transition: "all .2s" }}>
-          {isDone && <Check size={12} style={{ color: T.bg }} strokeWidth={3} />}
+      <div style={{ display: "flex", alignItems: "flex-start", gap: 12 }}>
+        <button onClick={e => { e.stopPropagation(); onToggle(task); }} style={{ flexShrink: 0, width: 18, height: 18, borderRadius: 5, border: `1.5px solid ${isDone ? T.success : T.goldMuted}`, background: isDone ? T.success : "transparent", display: "flex", alignItems: "center", justifyContent: "center", cursor: "pointer", marginTop: 2, transition: "all .2s" }}>
+          {isDone && <Check size={10} style={{ color: T.bg }} strokeWidth={3} />}
         </button>
         <div style={{ flex: 1, minWidth: 0 }}>
-          <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 8 }}>
-            <p style={{ fontSize: 14, fontWeight: 500, color: isDone ? T.textMuted : T.text, textDecoration: isDone ? "line-through" : "none", margin: 0 }}>{task.title}</p>
-            <ChevronRight size={14} style={{ color: hover ? T.gold : T.textMuted, flexShrink: 0, transition: "color .2s" }} />
-          </div>
-          {task.description && <p style={{ fontSize: 12, color: T.textMuted, margin: "4px 0 0", lineHeight: 1.5, overflow: "hidden", display: "-webkit-box", WebkitLineClamp: 2, WebkitBoxOrient: "vertical" }}>{task.description}</p>}
-          <div style={{ display: "flex", alignItems: "center", gap: 6, marginTop: 10, flexWrap: "wrap" }}>
-            <span style={{ fontSize: 10, fontWeight: 600, padding: "3px 9px", borderRadius: 99, background: st.color + "18", color: st.color }}>{st.label}</span>
-            <Badge label={lb.name} color={lb.color} small />
-            <span style={{ fontSize: 10, padding: "3px 9px", borderRadius: 99, background: isVesto ? T.gold + "18" : "#5a8a8a18", color: isVesto ? T.gold : "#5a8a8a", fontWeight: 500 }}>{responsibleLabel}</span>
-            {hasExtra && <span style={{ fontSize: 10, padding: "3px 9px", borderRadius: 99, background: T.goldDim, color: T.gold, fontWeight: 500, display: "inline-flex", alignItems: "center", gap: 3 }}><FileText size={10} />Instruções</span>}
-            {deadlineStr && dl && (
-              <span style={{ fontSize: 10, display: "inline-flex", alignItems: "center", gap: 4, padding: "3px 9px", borderRadius: 99, background: dl.bg, color: dl.color, fontWeight: 600 }}>
-                <Calendar size={10} />{deadlineStr} · {deadlineText(task.deadline)}{overdue && <AlertCircle size={10} />}
+          <p style={{ fontSize: 14, fontWeight: 500, color: isDone ? T.textMuted : T.text, textDecoration: isDone ? "line-through" : "none", margin: 0, lineHeight: 1.4 }}>{task.title}</p>
+          {task.description && <p style={{ fontSize: 12, color: T.textMuted, margin: "3px 0 0", lineHeight: 1.45, overflow: "hidden", display: "-webkit-box", WebkitLineClamp: 1, WebkitBoxOrient: "vertical" }}>{task.description}</p>}
+          <div style={{ display: "flex", alignItems: "center", gap: 8, marginTop: 8, flexWrap: "wrap", fontSize: 11, color: T.textMuted }}>
+            <span style={{ display: "inline-flex", alignItems: "center", gap: 5 }}>
+              <span style={{ width: 6, height: 6, borderRadius: 99, background: st.color, flexShrink: 0 }} />
+              {st.label}
+            </span>
+            <span style={{ opacity: .35 }}>·</span>
+            <span style={{ color: isVesto ? T.goldMuted : T.textMuted }}>{responsibleLabel}</span>
+            {deadlineStr && dl && <>
+              <span style={{ opacity: .35 }}>·</span>
+              <span style={{ color: dl.color, display: "inline-flex", alignItems: "center", gap: 4 }}>
+                {deadlineStr}{overdue && <AlertCircle size={10} />}
               </span>
-            )}
+            </>}
+            {lb?.name && <>
+              <span style={{ opacity: .35 }}>·</span>
+              <span style={{ color: lb.color }}>{lb.name}</span>
+            </>}
+            {hasExtra && <>
+              <span style={{ opacity: .35 }}>·</span>
+              <span style={{ color: T.goldMuted }}>Anexos</span>
+            </>}
           </div>
         </div>
-        {isAdmin && (
-          <div style={{ display: "flex", gap: 2, opacity: hover ? 1 : .5, transition: "opacity .2s" }}>
-            <button onClick={e => { e.stopPropagation(); onEdit(task); }} style={{ background: T.bgInput, border: `1px solid ${T.border}`, borderRadius: 6, color: T.textMuted, cursor: "pointer", padding: 6 }}><Edit3 size={13} /></button>
-            <button onClick={e => { e.stopPropagation(); onDelete(task.id); }} style={{ background: T.danger + "12", border: `1px solid ${T.danger}33`, borderRadius: 6, color: T.danger, cursor: "pointer", padding: 6 }}><Trash2 size={13} /></button>
+        {isAdmin && hover && (
+          <div style={{ display: "flex", gap: 2, flexShrink: 0 }}>
+            <button onClick={e => { e.stopPropagation(); onEdit(task); }} style={{ background: "transparent", border: "none", borderRadius: 6, color: T.textMuted, cursor: "pointer", padding: 4 }} title="Editar"><Edit3 size={13} /></button>
+            <button onClick={e => { e.stopPropagation(); onDelete(task.id); }} style={{ background: "transparent", border: "none", borderRadius: 6, color: T.danger, cursor: "pointer", padding: 4, opacity: .7 }} title="Excluir"><Trash2 size={13} /></button>
           </div>
         )}
       </div>
@@ -1306,71 +1312,125 @@ function matchesResponsibleFilter(task, filter, clientId) {
   return true;
 }
 
-function TaskFilterBar({ tasks, statuses, labels, filter, setFilter, search, setSearch, labelFilter, setLabelFilter, isAdmin, clientId, adminClients, dateFrom, setDateFrom, dateTo, setDateTo, responsibleFilter, setResponsibleFilter, statusFilter, setStatusFilter }) {
-  const counts = {
+function TaskFilterBar({ tasks, statuses, labels, filter, setFilter, search, setSearch, labelFilter, setLabelFilter, isAdmin, clientId, adminClients, dateFrom, setDateFrom, dateTo, setDateTo, responsibleFilter, setResponsibleFilter, onNewTask, isAdminCanCreate }) {
+  const [advanced, setAdvanced] = useState(false);
+  const counts = useMemo(() => ({
     all: tasks.length,
     overdue: tasks.filter(t => isOverdue(t)).length,
     assigned: tasks.filter(t => isAdmin ? isVestoResponsible(t.responsible) : taskAssignedToClient(t, clientId)).length,
     client: tasks.filter(t => taskAssignedToClient(t, clientId)).length,
     ...Object.fromEntries(statuses.map(s => [s.id, tasks.filter(t => t.status === s.id).length])),
-  };
-  const filters = [
-    { id: "all", label: "Todas", icon: ClipboardList, count: counts.all },
-    ...statuses.map(s => ({ id: s.id, label: s.label, icon: Circle, count: counts[s.id] || 0, color: s.color })),
-    { id: "assigned", label: "Atribuídos a mim", icon: User, count: counts.assigned },
-    ...(isAdmin ? [{ id: "client", label: "Do Cliente", icon: Users, count: counts.client }] : []),
-    { id: "overdue", label: "Atrasadas", icon: AlertCircle, count: counts.overdue, color: T.danger },
+  }), [tasks, statuses, isAdmin, clientId]);
+
+  const tabs = [
+    { id: "all", label: "Todas", count: counts.all },
+    ...statuses.map(s => ({ id: s.id, label: s.label, count: counts[s.id] || 0, color: s.color })),
+    { id: "assigned", label: isAdmin ? "Minhas" : "Minhas", count: counts.assigned },
+    ...(isAdmin ? [{ id: "client", label: "Cliente", count: counts.client }] : []),
+    ...(counts.overdue > 0 ? [{ id: "overdue", label: "Atrasadas", count: counts.overdue, color: T.danger }] : []),
   ];
-  const responsibleOptions = [{ value: "", label: "Todos responsáveis" }, { value: "vesto", label: "Vesto" }, ...adminClients.map(c => ({ value: `client:${c.id}`, label: c.company || c.name || "Cliente" }))];
-  const statusOptions = [{ value: "", label: "Todos status" }, ...statuses.map(s => ({ value: s.id, label: s.label }))];
-  const filterInputStyle = { background: T.bgInput, border: `1px solid ${T.border}`, borderRadius: 8, padding: "8px 10px", fontSize: 12, color: T.text, outline: "none", fontFamily: "inherit", minWidth: 0 };
+
+  const responsibleOptions = [{ value: "", label: "Responsável" }, { value: "vesto", label: "Vesto" }, ...adminClients.map(c => ({ value: `client:${c.id}`, label: c.company || c.name || "Cliente" }))];
+  const hasAdvanced = dateFrom || dateTo || responsibleFilter || labelFilter;
+
+  const field = {
+    background: T.bgElevated,
+    border: `1px solid ${T.border}`,
+    borderRadius: 8,
+    padding: "9px 12px",
+    fontSize: 12,
+    color: T.text,
+    outline: "none",
+    fontFamily: FONT.sans,
+    colorScheme: "dark",
+  };
+
+  const clearAdvanced = () => {
+    setDateFrom("");
+    setDateTo("");
+    setResponsibleFilter("");
+    setLabelFilter("");
+  };
 
   return (
-    <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
-      <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
-        {filters.map(f => {
-          const active = filter === f.id;
+    <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
+      <div style={{ display: "flex", alignItems: "center", gap: 10, flexWrap: "wrap" }}>
+        <div style={{ position: "relative", flex: "1 1 220px", minWidth: 180 }}>
+          <Search size={14} style={{ position: "absolute", left: 12, top: "50%", transform: "translateY(-50%)", color: T.textMuted, pointerEvents: "none" }} strokeWidth={1.5} />
+          <input
+            value={search}
+            onChange={e => setSearch(e.target.value)}
+            placeholder="Buscar..."
+            style={{ ...field, width: "100%", paddingLeft: 36, background: T.bgCard }}
+          />
+        </div>
+        <button
+          type="button"
+          onClick={() => setAdvanced(v => !v)}
+          style={{
+            display: "inline-flex", alignItems: "center", gap: 6,
+            padding: "9px 14px", borderRadius: 8, fontSize: 12, fontWeight: 500, cursor: "pointer",
+            background: advanced || hasAdvanced ? T.goldDim : T.bgCard,
+            color: advanced || hasAdvanced ? T.gold : T.textMuted,
+            border: `1px solid ${advanced || hasAdvanced ? T.goldBorder : T.border}`,
+            fontFamily: FONT.sans,
+          }}
+        >
+          <Filter size={13} strokeWidth={1.5} />
+          Filtros{hasAdvanced ? " ·" : ""}
+        </button>
+        {isAdminCanCreate && onNewTask && (
+          <Btn size="sm" onClick={onNewTask} style={{ flexShrink: 0 }}><Plus size={13} /> Nova</Btn>
+        )}
+      </div>
+
+      <div style={{ display: "flex", alignItems: "center", gap: 4, flexWrap: "wrap", borderBottom: `1px solid ${T.border}`, paddingBottom: 2 }}>
+        {tabs.map(tab => {
+          const active = filter === tab.id;
           return (
             <button
-              key={f.id}
-              onClick={() => setFilter(active ? "all" : f.id)}
+              key={tab.id}
+              type="button"
+              onClick={() => setFilter(active && tab.id !== "all" ? "all" : tab.id)}
               style={{
+                background: "none", border: "none", cursor: "pointer",
+                padding: "8px 12px", marginBottom: -1,
+                fontSize: 12, fontWeight: active ? 500 : 400,
+                color: active ? T.text : T.textMuted,
+                borderBottom: active ? `2px solid ${tab.color || T.gold}` : "2px solid transparent",
+                fontFamily: FONT.sans, transition: "color .2s",
                 display: "inline-flex", alignItems: "center", gap: 6,
-                padding: "7px 14px", borderRadius: 99, fontSize: 12, fontWeight: 500, cursor: "pointer",
-                background: active ? (f.color ? f.color + "22" : T.goldDim) : T.bgInput,
-                color: active ? (f.color || T.gold) : T.textMuted,
-                border: `1px solid ${active ? (f.color ? f.color + "55" : T.gold + "55") : T.border}`,
-                transition: "all .2s",
-                boxShadow: active ? `0 0 0 1px ${f.color ? f.color + "22" : T.goldDim}` : "none",
               }}
             >
-              <f.icon size={13} />{f.label}
-              <span style={{ fontSize: 10, padding: "1px 6px", borderRadius: 99, background: active ? "rgba(0,0,0,.15)" : T.bgCard, color: active ? "inherit" : T.textMuted }}>{f.count}</span>
+              {tab.label}
+              <span style={{ fontSize: 10, color: active ? (tab.color || T.gold) : T.textMuted, fontVariantNumeric: "tabular-nums" }}>{tab.count}</span>
             </button>
           );
         })}
       </div>
-      <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(140px, 1fr))", gap: 8 }}>
-        <div style={{ position: "relative", gridColumn: "span 2" }}>
-          <Search size={13} style={{ position: "absolute", left: 10, top: "50%", transform: "translateY(-50%)", color: T.textMuted }} />
-          <input value={search} onChange={e => setSearch(e.target.value)} placeholder="Buscar tarefa..." style={{ ...filterInputStyle, width: "100%", paddingLeft: 32 }} />
+
+      {advanced && (
+        <div style={{ display: "flex", flexDirection: "column", gap: 12, padding: "14px 16px", background: T.bgCard, border: `1px solid ${T.border}`, borderRadius: 10 }}>
+          <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(130px, 1fr))", gap: 10 }}>
+            <input type="date" value={dateFrom} onChange={e => setDateFrom(e.target.value)} title="Prazo de" style={field} />
+            <input type="date" value={dateTo} onChange={e => setDateTo(e.target.value)} title="Prazo até" style={field} />
+            <select value={responsibleFilter} onChange={e => setResponsibleFilter(e.target.value)} style={field}>
+              {responsibleOptions.map(o => <option key={o.value || "all"} value={o.value}>{o.label}</option>)}
+            </select>
+          </div>
+          <div style={{ display: "flex", alignItems: "center", gap: 6, flexWrap: "wrap" }}>
+            <button type="button" onClick={() => setLabelFilter("")} style={{ padding: "4px 10px", borderRadius: 6, fontSize: 11, cursor: "pointer", background: !labelFilter ? T.goldDim : "transparent", color: !labelFilter ? T.gold : T.textMuted, border: `1px solid ${!labelFilter ? T.goldBorder : T.border}` }}>Todas</button>
+            {labels.map(l => (
+              <button key={l.id} type="button" onClick={() => setLabelFilter(labelFilter === l.id ? "" : l.id)} style={{ padding: "4px 10px", borderRadius: 6, fontSize: 11, cursor: "pointer", background: labelFilter === l.id ? l.color + "18" : "transparent", color: labelFilter === l.id ? l.color : T.textMuted, border: `1px solid ${labelFilter === l.id ? l.color + "44" : T.border}` }}>{l.name}</button>
+            ))}
+          </div>
+          {hasAdvanced && (
+            <button type="button" onClick={clearAdvanced} style={{ alignSelf: "flex-start", background: "none", border: "none", color: T.textMuted, fontSize: 11, cursor: "pointer", padding: 0, fontFamily: FONT.sans }}>
+              Limpar filtros
+            </button>
+          )}
         </div>
-        <input type="date" value={dateFrom} onChange={e => setDateFrom(e.target.value)} title="Prazo de" style={filterInputStyle} />
-        <input type="date" value={dateTo} onChange={e => setDateTo(e.target.value)} title="Prazo até" style={filterInputStyle} />
-        <select value={responsibleFilter} onChange={e => setResponsibleFilter(e.target.value)} style={filterInputStyle}>
-          {responsibleOptions.map(o => <option key={o.value || "all"} value={o.value}>{o.label}</option>)}
-        </select>
-        <select value={statusFilter} onChange={e => setStatusFilter(e.target.value)} style={filterInputStyle}>
-          {statusOptions.map(o => <option key={o.value || "all"} value={o.value}>{o.label}</option>)}
-        </select>
-      </div>
-      <div style={{ display: "flex", alignItems: "center", gap: 6, flexWrap: "wrap" }}>
-        <Filter size={13} style={{ color: T.textMuted }} />
-        <button onClick={() => setLabelFilter("")} style={{ padding: "5px 10px", borderRadius: 99, fontSize: 11, cursor: "pointer", background: !labelFilter ? T.goldDim : T.bgInput, color: !labelFilter ? T.gold : T.textMuted, border: `1px solid ${!labelFilter ? T.gold + "44" : T.border}` }}>Todas etiquetas</button>
-        {labels.map(l => (
-          <button key={l.id} onClick={() => setLabelFilter(labelFilter === l.id ? "" : l.id)} style={{ padding: "5px 10px", borderRadius: 99, fontSize: 11, cursor: "pointer", background: labelFilter === l.id ? l.color + "22" : T.bgInput, color: labelFilter === l.id ? l.color : T.textMuted, border: `1px solid ${labelFilter === l.id ? l.color + "55" : T.border}` }}>{l.name}</button>
-        ))}
-      </div>
+      )}
     </div>
   );
 }
@@ -1379,25 +1439,25 @@ function ReportFilterBar({ search, setSearch, monthFilter, setMonthFilter, yearF
   const months = ["Jan","Fev","Mar","Abr","Mai","Jun","Jul","Ago","Set","Out","Nov","Dez"];
   const curYear = new Date().getFullYear();
   const years = Array.from({ length: 6 }, (_, i) => curYear - i);
-  const filterInputStyle = { background: T.bgInput, border: `1px solid ${T.border}`, borderRadius: 8, padding: "8px 10px", fontSize: 12, color: T.text, outline: "none", fontFamily: "inherit", minWidth: 0 };
+  const field = { background: T.bgCard, border: `1px solid ${T.border}`, borderRadius: 8, padding: "9px 12px", fontSize: 12, color: T.text, outline: "none", fontFamily: FONT.sans, colorScheme: "dark", minWidth: 0 };
 
   return (
-    <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(140px, 1fr))", gap: 8, alignItems: "end" }}>
-      <div style={{ position: "relative", gridColumn: showClientFilter ? "span 2" : "span 2" }}>
-        <Search size={13} style={{ position: "absolute", left: 10, top: "50%", transform: "translateY(-50%)", color: T.textMuted }} />
-        <input value={search} onChange={e => setSearch(e.target.value)} placeholder="Buscar por nome..." style={{ ...filterInputStyle, width: "100%", paddingLeft: 32 }} />
+    <div style={{ display: "flex", alignItems: "center", gap: 10, flexWrap: "wrap" }}>
+      <div style={{ position: "relative", flex: "1 1 200px", minWidth: 160 }}>
+        <Search size={14} style={{ position: "absolute", left: 12, top: "50%", transform: "translateY(-50%)", color: T.textMuted, pointerEvents: "none" }} strokeWidth={1.5} />
+        <input value={search} onChange={e => setSearch(e.target.value)} placeholder="Buscar relatório..." style={{ ...field, width: "100%", paddingLeft: 36 }} />
       </div>
-      <select value={monthFilter} onChange={e => setMonthFilter(e.target.value)} style={filterInputStyle}>
-        <option value="">Todos os meses</option>
+      <select value={monthFilter} onChange={e => setMonthFilter(e.target.value)} style={{ ...field, flex: "0 1 120px" }}>
+        <option value="">Mês</option>
         {months.map((m, i) => <option key={m} value={String(i + 1)}>{m}</option>)}
       </select>
-      <select value={yearFilter} onChange={e => setYearFilter(e.target.value)} style={filterInputStyle}>
-        <option value="">Todos os anos</option>
+      <select value={yearFilter} onChange={e => setYearFilter(e.target.value)} style={{ ...field, flex: "0 1 100px" }}>
+        <option value="">Ano</option>
         {years.map(y => <option key={y} value={String(y)}>{y}</option>)}
       </select>
       {showClientFilter && (
-        <select value={clientFilter} onChange={e => setClientFilter(e.target.value)} style={filterInputStyle}>
-          <option value="">Todos os clientes</option>
+        <select value={clientFilter} onChange={e => setClientFilter(e.target.value)} style={{ ...field, flex: "0 1 160px" }}>
+          <option value="">Cliente</option>
           {adminClients.map(c => <option key={c.id} value={c.id}>{c.company || c.name}</option>)}
         </select>
       )}
@@ -1528,7 +1588,6 @@ function ClientWorkspace({ client, tasks, reports, isAdmin, labels, statuses, on
   const [dateFrom, setDateFrom] = useState("");
   const [dateTo, setDateTo] = useState("");
   const [responsibleFilter, setResponsibleFilter] = useState("");
-  const [statusFilter, setStatusFilter] = useState("");
   const [reportSearch, setReportSearch] = useState("");
   const [reportMonthFilter, setReportMonthFilter] = useState("");
   const [reportYearFilter, setReportYearFilter] = useState("");
@@ -1547,14 +1606,13 @@ function ClientWorkspace({ client, tasks, reports, isAdmin, labels, statuses, on
     if (dateFrom && (!t.deadline || t.deadline < dateFrom)) return false;
     if (dateTo && (!t.deadline || t.deadline > dateTo)) return false;
     if (responsibleFilter && !matchesResponsibleFilter(t, responsibleFilter, client.id)) return false;
-    if (statusFilter && t.status !== statusFilter) return false;
     if (filter === "all") return true;
     if (filter === "client") return taskAssignedToClient(t, client.id);
     if (filter === "assigned") return isAdmin ? isVestoResponsible(t.responsible) : taskAssignedToClient(t, client.id);
     if (filter === "overdue") return isOverdue(t);
     return t.status === filter;
   });
-  const hasTaskFilters = taskSearch || labelFilter || dateFrom || dateTo || responsibleFilter || statusFilter || filter !== "all";
+  const hasTaskFilters = taskSearch || labelFilter || dateFrom || dateTo || responsibleFilter || filter !== "all";
   const adminClientIds = new Set(myAdminClients.map(c => c.id));
   const reportEntries = isAdmin && allReports
     ? Object.entries(allReports).flatMap(([cid, reps]) =>
@@ -1587,49 +1645,53 @@ function ClientWorkspace({ client, tasks, reports, isAdmin, labels, statuses, on
   return (
     <div style={{ flex: 1, overflowY: "auto" }}>
       {/* Header */}
-      <div style={{ borderBottom: `1px solid ${T.border}`, padding: "24px 28px 0" }}>
+      <div style={{ borderBottom: `1px solid ${T.border}`, padding: "18px 28px 0" }}>
         {isAdmin && onGoHome && (
           <button
             type="button"
             onClick={onGoHome}
-            style={{ display: "inline-flex", alignItems: "center", gap: 6, background: "none", border: "none", color: T.textMuted, fontSize: 12, cursor: "pointer", padding: "0 0 12px", fontFamily: FONT.sans, transition: "color .2s" }}
+            style={{ display: "inline-flex", alignItems: "center", gap: 6, background: "none", border: "none", color: T.textMuted, fontSize: 11, cursor: "pointer", padding: "0 0 14px", fontFamily: FONT.sans, transition: "color .2s", letterSpacing: ".02em" }}
             onMouseEnter={e => { e.currentTarget.style.color = T.gold; }}
             onMouseLeave={e => { e.currentTarget.style.color = T.textMuted; }}
           >
-            <ArrowLeft size={14} /> Voltar ao painel
+            <ArrowLeft size={13} strokeWidth={1.5} /> Voltar
           </button>
         )}
-        <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 20 }}>
-          <div style={{ display: "flex", alignItems: "center", gap: 16 }}>
-            {client.logo ? <img src={client.logo} alt="" style={{ width: 56, height: 56, borderRadius: 12, objectFit: "cover", border: `1px solid ${T.goldBorder}` }} />
-            : <div style={{ width: 56, height: 56, borderRadius: 12, background: T.goldDim, border: `1px solid ${T.goldBorder}`, display: "flex", alignItems: "center", justifyContent: "center" }}><span style={{ color: T.gold, fontWeight: 600, fontSize: 22, fontFamily: FONT.serif }}>{(client.company || "?")[0]}</span></div>}
-            <div>
-              <h2 style={{ fontSize: 24, fontWeight: 600, color: T.text, margin: 0, fontFamily: FONT.serif, letterSpacing: ".01em" }}>{client.company}</h2>
-              <div style={{ display: "flex", alignItems: "center", gap: 10, marginTop: 4 }}>
-                <span style={{ fontSize: 13, color: T.textSec }}>{client.name}</span>
-                {client.nicho && <Badge label={client.nicho} color={T.gold} small />}
+        <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 16, gap: 16 }}>
+          <div style={{ display: "flex", alignItems: "center", gap: 14, minWidth: 0 }}>
+            {client.logo ? <img src={client.logo} alt="" style={{ width: 44, height: 44, borderRadius: 10, objectFit: "cover", border: `1px solid ${T.goldBorder}`, flexShrink: 0 }} />
+            : <div style={{ width: 44, height: 44, borderRadius: 10, background: T.goldDim, border: `1px solid ${T.goldBorder}`, display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}><span style={{ color: T.gold, fontWeight: 600, fontSize: 18, fontFamily: FONT.serif }}>{(client.company || "?")[0]}</span></div>}
+            <div style={{ minWidth: 0 }}>
+              <h2 style={{ fontSize: 20, fontWeight: 600, color: T.text, margin: 0, fontFamily: FONT.serif, letterSpacing: ".01em", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{client.company}</h2>
+              <div style={{ display: "flex", alignItems: "center", gap: 8, marginTop: 3 }}>
+                <span style={{ fontSize: 12, color: T.textMuted }}>{client.name}</span>
+                {client.nicho && <span style={{ fontSize: 10, color: T.goldMuted, letterSpacing: ".04em" }}>{client.nicho}</span>}
               </div>
             </div>
           </div>
-          {isAdmin && <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
-            <div style={{ textAlign: "right" }}><p style={{ fontSize: 9, color: T.goldMuted, margin: 0, textTransform: "uppercase", letterSpacing: ".1em", fontWeight: 600 }}>Login</p><p style={{ fontSize: 12, color: T.textSec, margin: 0, fontFamily: "ui-monospace, monospace" }}>{client.email}</p></div>
-            <button onClick={copyCredentials} style={{ background: T.bgInput, border: `1px solid ${T.border}`, borderRadius: 6, padding: 6, color: T.textMuted, cursor: "pointer" }}>{copied ? <Check size={14} style={{ color: T.success }} /> : <Copy size={14} />}</button>
-            {!editingClient && onDeleteClient && <Btn variant="danger" size="sm" onClick={() => { if (confirm(`Remover ${client.company}?`)) onDeleteClient(client.id); }}><Trash2 size={13} /> Remover</Btn>}
+          {isAdmin && <div style={{ display: "flex", alignItems: "center", gap: 6, flexShrink: 0 }}>
+            <span style={{ fontSize: 11, color: T.textMuted, fontFamily: "ui-monospace, monospace", maxWidth: 160, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{client.email}</span>
+            <button onClick={copyCredentials} title="Copiar credenciais" style={{ background: "transparent", border: `1px solid ${T.border}`, borderRadius: 6, padding: 5, color: T.textMuted, cursor: "pointer", display: "flex" }}>{copied ? <Check size={13} style={{ color: T.success }} /> : <Copy size={13} />}</button>
+            {!editingClient && onDeleteClient && (
+              <button type="button" title="Remover cliente" onClick={() => { if (confirm(`Remover ${client.company}?`)) onDeleteClient(client.id); }} style={{ background: "transparent", border: `1px solid ${T.border}`, borderRadius: 6, padding: 5, color: T.textMuted, cursor: "pointer", display: "flex" }}>
+                <Trash2 size={13} />
+              </button>
+            )}
           </div>}
         </div>
-        <div style={{ display: "flex", gap: 0 }}>
+        <div style={{ display: "flex", gap: 4 }}>
           {tabs.map(t => {
             const active = tab === t.id;
             return (
-              <button key={t.id} onClick={() => goTab(t.id)} style={{ display: "flex", alignItems: "center", gap: 7, padding: "10px 18px", fontSize: 13, fontWeight: 500, background: "transparent", color: active ? T.gold : T.textMuted, border: "none", borderBottom: active ? `2px solid ${T.gold}` : "2px solid transparent", cursor: "pointer", transition: "all .2s", marginBottom: -1 }}>
-                <t.icon size={15} strokeWidth={1.5} />{t.label}
+              <button key={t.id} onClick={() => goTab(t.id)} style={{ display: "flex", alignItems: "center", gap: 6, padding: "9px 14px", fontSize: 12, fontWeight: active ? 500 : 400, background: "transparent", color: active ? T.gold : T.textMuted, border: "none", borderBottom: active ? `2px solid ${T.gold}` : "2px solid transparent", cursor: "pointer", transition: "all .2s", marginBottom: -1, fontFamily: FONT.sans }}>
+                <t.icon size={14} strokeWidth={1.5} />{t.label}
               </button>
             );
           })}
         </div>
       </div>
 
-      <div style={{ padding: "28px" }}>
+      <div style={{ padding: "24px 28px 32px" }}>
         {/* Dados */}
         {tab === "dados" && (editingClient ? <ClientForm initial={client} onSave={c => { onUpdateClient(c); setEditingClient(false); }} onCancel={() => setEditingClient(false)} />
         : <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
@@ -1655,27 +1717,31 @@ function ClientWorkspace({ client, tasks, reports, isAdmin, labels, statuses, on
         </div>)}
 
         {/* Tarefas */}
-        {tab === "tarefas" && <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
-          <div style={{ display: "grid", gap: 10, gridTemplateColumns: `repeat(${statuses.length}, 1fr)` }}>
-            {statuses.map(st => {
-              const count = (tasks || []).filter(t => t.status === st.id).length;
-              const active = filter === st.id;
-              return (
-                <button key={st.id} onClick={() => setFilter(active ? "all" : st.id)} style={{ background: active ? st.color + "0a" : T.bgCard, border: `1px solid ${active ? st.color + "40" : T.border}`, borderRadius: 10, padding: "16px 14px", textAlign: "center", cursor: "pointer", transition: "all .2s" }}>
-                  <p style={{ fontSize: 28, fontWeight: 600, color: st.color, margin: 0, fontFamily: FONT.serif }}>{count}</p>
-                  <p style={{ fontSize: 9, color: T.textMuted, margin: "6px 0 0", textTransform: "uppercase", letterSpacing: ".1em", fontWeight: 600 }}>{st.label}</p>
-                </button>
-              );
-            })}
-          </div>
-          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", flexWrap: "wrap", gap: 12 }}>
-            <div style={{ flex: 1, minWidth: 280 }}>
-              <TaskFilterBar tasks={tasks || []} statuses={statuses} labels={labels} filter={filter} setFilter={setFilter} search={taskSearch} setSearch={setTaskSearch} labelFilter={labelFilter} setLabelFilter={setLabelFilter} isAdmin={isAdmin} clientId={client.id} adminClients={myAdminClients} dateFrom={dateFrom} setDateFrom={setDateFrom} dateTo={dateTo} setDateTo={setDateTo} responsibleFilter={responsibleFilter} setResponsibleFilter={setResponsibleFilter} statusFilter={statusFilter} setStatusFilter={setStatusFilter} />
-            </div>
-            {isAdmin && <Btn size="sm" onClick={() => setTaskModal("new")} style={{ flexShrink: 0 }}><Plus size={13} /> Nova Tarefa</Btn>}
-          </div>
-          {sortedTasks.length === 0 ? <EmptyState icon={ClipboardList} title="Nenhuma tarefa encontrada" desc={hasTaskFilters ? "Tente outro filtro ou busca." : "Crie a primeira tarefa para começar."} action={isAdmin && !hasTaskFilters && <Btn size="sm" onClick={() => setTaskModal("new")}><Plus size={13} /> Criar Tarefa</Btn>} />
-          : <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>{sortedTasks.map(t => <TaskCard key={t.id} task={t} isAdmin={isAdmin} labels={labels} statuses={statuses} onEdit={task => setTaskModal(task)} onToggle={handleToggleTask} onDelete={handleDeleteTask} onOpen={setTaskDetail} allClients={clientsMap} currentClient={client} />)}</div>}
+        {tab === "tarefas" && <div style={{ display: "flex", flexDirection: "column", gap: 20 }}>
+          <TaskFilterBar
+            tasks={tasks || []}
+            statuses={statuses}
+            labels={labels}
+            filter={filter}
+            setFilter={setFilter}
+            search={taskSearch}
+            setSearch={setTaskSearch}
+            labelFilter={labelFilter}
+            setLabelFilter={setLabelFilter}
+            isAdmin={isAdmin}
+            clientId={client.id}
+            adminClients={myAdminClients}
+            dateFrom={dateFrom}
+            setDateFrom={setDateFrom}
+            dateTo={dateTo}
+            setDateTo={setDateTo}
+            responsibleFilter={responsibleFilter}
+            setResponsibleFilter={setResponsibleFilter}
+            onNewTask={() => setTaskModal("new")}
+            isAdminCanCreate={isAdmin}
+          />
+          {sortedTasks.length === 0 ? <EmptyState icon={ClipboardList} title="Nenhuma tarefa" desc={hasTaskFilters ? "Ajuste os filtros ou a busca." : "Crie a primeira tarefa para começar."} action={isAdmin && !hasTaskFilters && <Btn size="sm" onClick={() => setTaskModal("new")}><Plus size={13} /> Criar</Btn>} />
+          : <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>{sortedTasks.map(t => <TaskCard key={t.id} task={t} isAdmin={isAdmin} labels={labels} statuses={statuses} onEdit={task => setTaskModal(task)} onToggle={handleToggleTask} onDelete={handleDeleteTask} onOpen={setTaskDetail} allClients={clientsMap} currentClient={client} />)}</div>}
           <TaskDetailDrawer task={taskDetail} open={!!taskDetail} onClose={() => setTaskDetail(null)} labels={labels} statuses={statuses} isAdmin={isAdmin} onToggle={handleToggleTask} onComplete={handleCompleteTask} onEdit={task => setTaskModal(task)} allClients={clientsMap} currentClient={client} />
           <Modal open={!!taskModal} onClose={() => setTaskModal(null)} title={taskModal && taskModal !== "new" ? "Editar Tarefa" : "Nova Tarefa"} wide>
             <TaskForm initial={taskModal !== "new" ? taskModal : null} labels={labels} statuses={statuses} onSave={handleSaveTask} onCancel={() => setTaskModal(null)} onAddLabel={onAddLabel} onAddStatus={onAddStatus} adminClients={myAdminClients} currentClient={client} />
@@ -1684,11 +1750,11 @@ function ClientWorkspace({ client, tasks, reports, isAdmin, labels, statuses, on
 
         {/* Relatórios */}
         {tab === "relatorios" && <div style={{ display: "flex", flexDirection: "column", gap: 20 }}>
-          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", flexWrap: "wrap", gap: 12 }}>
-            <div style={{ flex: 1, minWidth: 280 }}>
+          <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 12, flexWrap: "wrap" }}>
+            <div style={{ flex: 1, minWidth: 240 }}>
               <ReportFilterBar search={reportSearch} setSearch={setReportSearch} monthFilter={reportMonthFilter} setMonthFilter={setReportMonthFilter} yearFilter={reportYearFilter} setYearFilter={setReportYearFilter} clientFilter={reportClientFilter} setClientFilter={setReportClientFilter} adminClients={myAdminClients} showClientFilter={isAdmin && myAdminClients.length > 1} />
             </div>
-            {isAdmin && <Btn size="sm" onClick={() => setReportModal("new")} style={{ flexShrink: 0 }}><Plus size={13} /> Novo Relatório</Btn>}
+            {isAdmin && <Btn size="sm" onClick={() => setReportModal("new")} style={{ flexShrink: 0 }}><Plus size={13} /> Novo</Btn>}
           </div>
           {filteredReports.length === 0 ? <EmptyState icon={BarChart3} title="Nenhum relatório" desc={hasReportFilters ? "Tente outro filtro." : "Os relatórios mensais aparecerão aqui."} action={isAdmin && !hasReportFilters && <Btn size="sm" onClick={() => setReportModal("new")}><Plus size={13} /> Adicionar</Btn>} />
           : <div style={{ position: "relative", paddingLeft: 28 }}>

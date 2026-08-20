@@ -26,6 +26,11 @@
       ::-webkit-scrollbar-track { background: transparent; }
       ::-webkit-scrollbar-thumb { background: #1a3d2e; border-radius: 99px; }
       ::-webkit-scrollbar-thumb:hover { background: #c4a96244; }
+      input[type="date"], select {
+        color-scheme: dark;
+      }
+      input[type="date"]::-webkit-calendar-picker-indicator,
+      select { filter: brightness(0.85); }
     </style>
   </head>
   <body>
